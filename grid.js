@@ -1,45 +1,45 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const parentDiv = document.getElementById('gridContainer'); // Get the parent div
+  const parentDiv = document.getElementById('gridContainer'); // Get the parent div
 
-    if (parentDiv) {
-        const childDivs = parentDiv.querySelectorAll('.item'); // Get all child divs
-        let imagesCount = 0; // Change variable name to imagesCount
-        let allImagesLoaded = false;
+  if (parentDiv) {
+    const childDivs = parentDiv.querySelectorAll('.item'); // Get all child divs
+    let imagesCount = 0; // Change variable name to imagesCount
+    let allImagesLoaded = false;
 
-        for (let i = 0; i < childDivs.length; i++) {
-            const childDiv = childDivs[i];
-            childDiv.style.marginBottom = '20px'; // Add a 20px bottom margin to each child div
+    for (let i = 0; i < childDivs.length; i++) {
+      const childDiv = childDivs[i];
+      childDiv.style.marginBottom = '20px'; // Add a 20px bottom margin to each child div
 
-            // Check if the child div contains an image
-            const image = childDiv.querySelector('img');
-            if (image) {
-                image.addEventListener('load', function() {
-                    imagesCount++; // Change variable name to imagesCount
+      // Check if the child div contains an image
+      const image = childDiv.querySelector('img');
+      if (image) {
+        image.addEventListener('load', function() {
+          imagesCount++; // Change variable name to imagesCount
 
-                    // Check if all images have finished loading
-                    if (imagesCount === childDivs.length) { // Change variable name to imagesCount
-                        allImagesLoaded = true;
-                        initializeMasonry(); // Call the function after all images have loaded
-                    }
-                });
-            } else {
-                imagesCount++; // Change variable name to imagesCount
-
-                // Check if all images have finished loading
-                if (imagesCount === childDivs.length) { // Change variable name to imagesCount
-                    allImagesLoaded = true;
-                    initializeMasonry(); // Call the function if there are no images to load
-                }
-            }
-        }
-
-        // Use the imagesLoaded library to detect when all images have finished loading
-        imagesLoaded(parentDiv, function() { // Change function name to avoid conflicts
-            if (!allImagesLoaded) {
-                initializeMasonry(); // Call the function after all images have loaded (additional delay)
-            }
+          // Check if all images have finished loading
+          if (imagesCount === childDivs.length) { // Change variable name to imagesCount
+            allImagesLoaded = true;
+            initializeMasonry(); // Call the function after all images have loaded
+          }
         });
+      } else {
+        imagesCount++; // Change variable name to imagesCount
+
+        // Check if all images have finished loading
+        if (imagesCount === childDivs.length) { // Change variable name to imagesCount
+          allImagesLoaded = true;
+          initializeMasonry(); // Call the function if there are no images to load
+        }
+      }
     }
+
+    // Use the imagesLoaded library to detect when all images have finished loading
+    imagesLoaded(parentDiv, function() { // Change function name to avoid conflicts
+      if (!allImagesLoaded) {
+        initializeMasonry(); // Call the function after all images have loaded (additional delay)
+      }
+    });
+  }
 });
 
 function initializeMasonry() {
@@ -60,36 +60,41 @@ function initializeMasonry() {
   }, 1000); // Delay Masonry initialization by 1 second
 }
 
-  // Your Airtable configuration and data fetching code
-  const base = "app1Z4C0dO7ufbxUS";
-  const table = "tblGBDKi3iFTW5GT2";
-  const apiKey = "patKNF8F1xv6adKyZ.7a5269c2c65164ef8233b6e7c3b3d9f977ae7e9e7c65182d87827db1ead9fa12";
-  const desiredFields = "Work (copyright to their respective oweners),Name,Notes,Website,Category,Instagram";
+// Your Airtable configuration and data fetching code
+const base = "app1Z4C0dO7ufbxUS";
+const table = "tblGBDKi3iFTW5GT2";
+const apiKey = "patKNF8F1xv6adKyZ.7a5269c2c65164ef8233b6e7c3b3d9f977ae7e9e7c65182d87827db1ead9fa12";
+const desiredFields = "Work (copyright to their respective oweners),Name,Notes,Website,Category,Instagram";
 
-  // Fetch Airtable schema to get fields information
-  const metaUrl = `https://api.airtable.com/v0/meta/bases/${base}/tables`;
-  const metaHeaders = { Authorization: `Bearer ${apiKey}` };
+// Fetch Airtable schema to get fields information
+const metaUrl = `https://api.airtable.com/v0/meta/bases/${base}/tables`;
+const metaHeaders = { Authorization: `Bearer ${apiKey}` };
 
-  fetch(metaUrl, { headers: metaHeaders })
-    .then(response => response.json())
-    .then(meta => {
-      const tableMeta = meta.tables.find(t => t.id === table);
+fetch(metaUrl, { headers: metaHeaders })
+  .then(response => response.json())
+  .then(meta => {
+    const tableMeta = meta.tables.find(t => t.id === table);
 
-      if (!tableMeta) {
-        throw new Error("Table not found in the schema.");
-      }
+    if (!tableMeta) {
+      throw new Error("Table not found in the schema.");
+    }
 
-      const fieldsSchema = {};
-      tableMeta.fields.forEach(field => {
-        fieldsSchema[field.name] = field.type;
-      });
+    const fieldsSchema = {};
+    tableMeta.fields.forEach(field => {
+      fieldsSchema[field.name] = field.type;
+    });
 
-      // Split desired fields into an array
-      const desiredFieldsArray = desiredFields.split(",").map(field => field.trim());
+    // Split desired fields into an array
+    const desiredFieldsArray = desiredFields.split(",").map(field => field.trim());
 
-      // Fetch data from Airtable
-      const view = "viwZ36CXYDIDlsBBe";
-      const dataUrl = `https://api.airtable.com/v0/${base}/${table}?view=${view}&pageSize==10`;
+    // Fetch data from Airtable
+    let offset = ""; // Initialize offset to empty string
+    const view = "viwZ36CXYDIDlsBBe";
+    const pageSize = 12;
+    const loadMoreButton = document.getElementById("loadMoreButton");
+
+    function fetchData() {
+      const dataUrl = `https://api.airtable.com/v0/${base}/${table}?view=${view}&pageSize=${pageSize}&offset=${offset}`;
       const dataHeaders = { Authorization: `Bearer ${apiKey}` };
 
       fetch(dataUrl, { headers: dataHeaders })
@@ -168,7 +173,24 @@ function initializeMasonry() {
 
           // Initialize Masonry after the grid items are added to the DOM
           initializeMasonry();
+
+          // Update the offset for the next page
+          offset = data.offset;
+
+          // Check if there are more records to load
+          if (data.offset) {
+            loadMoreButton.style.display = "block"; // Show the load more button
+          } else {
+            loadMoreButton.style.display = "none"; // Hide the load more button
+          }
         })
         .catch(error => console.error(error.message));
-    })
-    .catch(error => console.error(error.message));
+    }
+
+    loadMoreButton.addEventListener("click", function() {
+      fetchData();
+    });
+
+    fetchData(); // Fetch initial data
+  })
+  .catch(error => console.error(error.message));
