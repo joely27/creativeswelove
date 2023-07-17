@@ -10,6 +10,7 @@ const view = "viwZ36CXYDIDlsBBe";
 const pageSize = 12;
 const loadMoreThreshold = 200; // Threshold in pixels from the bottom of the page to trigger loading more records
 let isLoadingMore = false; // Flag to prevent multiple simultaneous loading requests
+let desiredFieldsArray; // Declare the desiredFieldsArray variable outside fetchData
 
 function fetchData() {
   if (offset === null) {
@@ -22,9 +23,6 @@ function fetchData() {
     dataUrl += `&offset=${offset}`;
   }
   const dataHeaders = { Authorization: `Bearer ${apiKey}` };
-
-  // Split desired fields into an array
-  const desiredFieldsArray = desiredFields.split(",").map(field => field.trim());
 
   fetch(dataUrl, { headers: dataHeaders })
     .then(response => response.json())
@@ -179,5 +177,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
   window.addEventListener('scroll', handleScroll); // Add scroll listener
 
-  fetchData(); // Fetch initial data
+  // Fetch Airtable schema to get fields information
+  const metaUrl = `https://api.airtable.com/v0/meta/bases/${base}/tables`;
+  const metaHeaders = { Authorization: `Bearer ${apiKey}` };
+
+  fetch(metaUrl, { headers: metaHeaders })
+    .then(response => response.json())
+    .then(meta => {
+      const tableMeta = meta.tables.find(t => t.id === table);
+
+      if (!tableMeta) {
+        throw new Error("Table not found in the schema.");
+      }
+
+      const fieldsSchema = {};
+      tableMeta.fields.forEach(field => {
+        fieldsSchema[field.name] = field.type;
+      });
+
+      // Split desired fields into an array
+      desiredFieldsArray = desiredFields.split(",").map(field => field.trim());
+
+      fetchData(); // Fetch initial data
+    })
+    .catch(error => console.error(error.message));
 });
