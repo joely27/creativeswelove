@@ -8,6 +8,8 @@ const desiredFields = "Work (copyright to their respective oweners),Name,Notes,W
 let offset = null; // Initialize offset to null
 const view = "viwZ36CXYDIDlsBBe";
 const pageSize = 12;
+const loadMoreThreshold = 200; // Threshold in pixels from the bottom of the page to trigger loading more records
+let isLoadingMore = false; // Flag to prevent multiple simultaneous loading requests
 
 function fetchData() {
   if (offset === null) {
@@ -112,10 +114,6 @@ function fetchData() {
     .catch(error => console.error(error.message));
 }
 
-// Infinite Scroll functionality
-const loadMoreThreshold = 200; // Threshold in pixels from the bottom of the page to trigger loading more records
-let isLoadingMore = false; // Flag to prevent multiple simultaneous loading requests
-
 function handleScroll() {
   if (isLoadingMore) return;
 
@@ -128,8 +126,6 @@ function handleScroll() {
     fetchData();
   }
 }
-
-window.addEventListener('scroll', handleScroll);
 
 function removeScrollListener() {
   window.removeEventListener('scroll', handleScroll);
@@ -196,12 +192,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000); // Delay Masonry initialization by 1 second
   }
 
-  // Your Airtable configuration and data fetching code
-  const base = "app1Z4C0dO7ufbxUS";
-  const table = "tblGBDKi3iFTW5GT2";
-  const apiKey = "patKNF8F1xv6adKyZ.7a5269c2c65164ef8233b6e7c3b3d9f977ae7e9e7c65182d87827db1ead9fa12";
-  const desiredFields = "Work (copyright to their respective oweners),Name,Notes,Website,Category,Instagram";
-
   // Fetch Airtable schema to get fields information
   const metaUrl = `https://api.airtable.com/v0/meta/bases/${base}/tables`;
   const metaHeaders = { Authorization: `Bearer ${apiKey}` };
@@ -222,6 +212,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
       // Split desired fields into an array
       const desiredFieldsArray = desiredFields.split(",").map(field => field.trim());
+
+      window.addEventListener('scroll', handleScroll); // Add scroll listener
 
       fetchData(); // Fetch initial data
     })
