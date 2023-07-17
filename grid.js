@@ -23,6 +23,9 @@ function fetchData() {
   }
   const dataHeaders = { Authorization: `Bearer ${apiKey}` };
 
+  // Split desired fields into an array
+  const desiredFieldsArray = desiredFields.split(",").map(field => field.trim());
+
   fetch(dataUrl, { headers: dataHeaders })
     .then(response => response.json())
     .then(data => {
@@ -173,27 +176,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-
-  function initializeMasonry() {
-    setTimeout(function() {
-      const gridContainer = document.getElementById("gridContainer");
-      const masonry = new Masonry(gridContainer, {
-        itemSelector: ".item",
-        gutter: 30, // Set the desired gap between grid items
-        percentPosition: true
-      });
-
-      // Show the grid and grid items
-      gridContainer.style.visibility = "visible";
-      const items = document.getElementsByClassName("item");
-      for (let i = 0; i < items.length; i++) {
-        items[i].style.opacity = "1";
-      }
-    }, 1000); // Delay Masonry initialization by 1 second
-  }
-
-  // Your Airtable configuration and data fetching code
-  const desiredFieldsArray = desiredFields.split(",").map(field => field.trim());
 
   window.addEventListener('scroll', handleScroll); // Add scroll listener
 
