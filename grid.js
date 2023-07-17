@@ -112,6 +112,29 @@ function fetchData() {
     .catch(error => console.error(error.message));
 }
 
+// Infinite Scroll functionality
+const loadMoreThreshold = 200; // Threshold in pixels from the bottom of the page to trigger loading more records
+let isLoadingMore = false; // Flag to prevent multiple simultaneous loading requests
+
+function handleScroll() {
+  if (isLoadingMore) return;
+
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+  const documentHeight = document.documentElement.offsetHeight;
+
+  if (documentHeight - (scrollTop + windowHeight) <= loadMoreThreshold) {
+    isLoadingMore = true;
+    fetchData();
+  }
+}
+
+window.addEventListener('scroll', handleScroll);
+
+function removeScrollListener() {
+  window.removeEventListener('scroll', handleScroll);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   const parentDiv = document.getElementById('gridContainer'); // Get the parent div
 
@@ -155,29 +178,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Infinite Scroll functionality
-  const loadMoreThreshold = 200; // Threshold in pixels from the bottom of the page to trigger loading more records
-  let isLoadingMore = false; // Flag to prevent multiple simultaneous loading requests
-
-  function handleScroll() {
-    if (isLoadingMore) return;
-
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-    const documentHeight = document.documentElement.offsetHeight;
-
-    if (documentHeight - (scrollTop + windowHeight) <= loadMoreThreshold) {
-      isLoadingMore = true;
-      fetchData();
-    }
-  }
-
-  window.addEventListener('scroll', handleScroll);
-
-  function removeScrollListener() {
-    window.removeEventListener('scroll', handleScroll);
-  }
-
   function initializeMasonry() {
     setTimeout(function() {
       const gridContainer = document.getElementById("gridContainer");
@@ -196,4 +196,34 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000); // Delay Masonry initialization by 1 second
   }
 
+  // Your Airtable configuration and data fetching code
+  const base = "app1Z4C0dO7ufbxUS";
+  const table = "tblGBDKi3iFTW5GT2";
+  const apiKey = "patKNF8F1xv6adKyZ.7a5269c2c65164ef8233b6e7c3b3d9f977ae7e9e7c65182d87827db1ead9fa12";
+  const desiredFields = "Work (copyright to their respective oweners),Name,Notes,Website,Category,Instagram";
+
+  // Fetch Airtable schema to get fields information
+  const metaUrl = `https://api.airtable.com/v0/meta/bases/${base}/tables`;
+  const metaHeaders = { Authorization: `Bearer ${apiKey}` };
+
+  fetch(metaUrl, { headers: metaHeaders })
+    .then(response => response.json())
+    .then(meta => {
+      const tableMeta = meta.tables.find(t => t.id === table);
+
+      if (!tableMeta) {
+        throw new Error("Table not found in the schema.");
+      }
+
+      const fieldsSchema = {};
+      tableMeta.fields.forEach(field => {
+        fieldsSchema[field.name] = field.type;
+      });
+
+      // Split desired fields into an array
+      const desiredFieldsArray = desiredFields.split(",").map(field => field.trim());
+
+      fetchData(); // Fetch initial data
+    })
+    .catch(error => console.error(error.message));
 });
