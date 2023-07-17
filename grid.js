@@ -192,30 +192,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000); // Delay Masonry initialization by 1 second
   }
 
-  // Fetch Airtable schema to get fields information
-  const metaUrl = `https://api.airtable.com/v0/meta/bases/${base}/tables`;
-  const metaHeaders = { Authorization: `Bearer ${apiKey}` };
+  // Your Airtable configuration and data fetching code
+  const desiredFieldsArray = desiredFields.split(",").map(field => field.trim());
 
-  fetch(metaUrl, { headers: metaHeaders })
-    .then(response => response.json())
-    .then(meta => {
-      const tableMeta = meta.tables.find(t => t.id === table);
+  window.addEventListener('scroll', handleScroll); // Add scroll listener
 
-      if (!tableMeta) {
-        throw new Error("Table not found in the schema.");
-      }
-
-      const fieldsSchema = {};
-      tableMeta.fields.forEach(field => {
-        fieldsSchema[field.name] = field.type;
-      });
-
-      // Split desired fields into an array
-      const desiredFieldsArray = desiredFields.split(",").map(field => field.trim());
-
-      window.addEventListener('scroll', handleScroll); // Add scroll listener
-
-      fetchData(); // Fetch initial data
-    })
-    .catch(error => console.error(error.message));
+  fetchData(); // Fetch initial data
 });
