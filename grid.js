@@ -115,9 +115,9 @@ document.addEventListener('DOMContentLoaded', function() {
       const pageSize = 12;
 
       function fetchData() {
-        if (offset === '') {
+        if (offset === null) {
+          offset = '';
           removeScrollListener();
-          return;
         }
 
         let dataUrl = `https://api.airtable.com/v0/${base}/${table}?view=${view}&pageSize=${pageSize}`;
@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
             isLoadingMore = false; // Reset the loading flag
 
             // Check if there are more records to load
-            if (offset) {
+            if (offset !== '') {
               handleScroll(); // Check if more records need to be loaded immediately
             } else {
               removeScrollListener(); // No more records to load, remove the scroll listener
