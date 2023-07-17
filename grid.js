@@ -89,7 +89,7 @@ function initializeMasonry() {
 
       // Fetch data from Airtable
       const view = "viwZ36CXYDIDlsBBe";
-      const dataUrl = `https://api.airtable.com/v0/${base}/${table}?view=${view}&maxRecords=10`;
+      const dataUrl = `https://api.airtable.com/v0/${base}/${table}?view=${view}&pageSize==10`;
       const dataHeaders = { Authorization: `Bearer ${apiKey}` };
 
       fetch(dataUrl, { headers: dataHeaders })
