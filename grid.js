@@ -88,13 +88,16 @@ fetch(metaUrl, { headers: metaHeaders })
     const desiredFieldsArray = desiredFields.split(",").map(field => field.trim());
 
     // Fetch data from Airtable
-    let offset = ""; // Initialize offset to empty string
+    let offset = null; // Initialize offset to null
     const view = "viwZ36CXYDIDlsBBe";
     const pageSize = 12;
     const loadMoreButton = document.getElementById("loadMoreButton");
 
     function fetchData() {
-      const dataUrl = `https://api.airtable.com/v0/${base}/${table}?view=${view}&pageSize=${pageSize}&offset=${offset}`;
+      let dataUrl = `https://api.airtable.com/v0/${base}/${table}?view=${view}&pageSize=${pageSize}`;
+      if (offset) {
+        dataUrl += `&offset=${offset}`;
+      }
       const dataHeaders = { Authorization: `Bearer ${apiKey}` };
 
       fetch(dataUrl, { headers: dataHeaders })
