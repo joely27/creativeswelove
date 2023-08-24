@@ -6,7 +6,7 @@ document.head.appendChild(styleElement);
 var css = `
 iframe {
 width: 100%;
-height: 672px;
+height: 630px;
 border: 0px!important;
 
 }
@@ -18,7 +18,7 @@ margin: 0;
 
 @media (max-width: 900px) {
 iframe {
-height: 1204px;
+height: 1120px;
 
 }
 
